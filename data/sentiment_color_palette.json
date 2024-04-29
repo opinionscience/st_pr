@@ -1,0 +1,9 @@
+{
+    "NA" : "#CACFD2",
+    "mixed":"#CACFD2",
+    "neutral":"#CACFD2",
+    "very_negative":"#E74C3C",
+    "negative" : "#F5B7B1",
+    "positive" :"#A3E4D7",
+    "very_positive":"#1ABC9C"
+}
