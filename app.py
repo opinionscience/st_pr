@@ -46,12 +46,11 @@ def main():
     ignore_accent = st.sidebar.toggle("Ignore accent", value=True, label_visibility="visible")
     match_word = st.sidebar.toggle("Match words", value=True, label_visibility="visible")
     rolling_period = st.sidebar.text_input("Rolling period", value='1M', label_visibility="visible")
+    layout = st.sidebar.selectbox("Layout", ["neato", "fdp", "sfdp"], index=0, placeholder="Choose a layout")
 
     min_freq_nodes = st.sidebar.number_input("Minimum word frequency", min_value=1, max_value=100, value=5, step=1)
     min_freq_edges = st.sidebar.number_input("Minimum edges frequency", min_value=1, max_value=100, value=7, step=1)
     resolution = st.sidebar.number_input("Modularity", min_value=0.0, max_value=3.0, value=1.0, step=0.1)
-
-    layout = "fdp"
 
     min_node_size = 8
     max_node_size = 40
