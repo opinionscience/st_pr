@@ -30,7 +30,7 @@ def main():
     ###############################################
     # LOAD DATA
     ###############################################
-    df = load_pickle("data/df_prod.pickle")
+    df = pd.read_pickle("data/df_prod.pickle")
     channel_color_palette = read_json("data/channel_color_palette.json")
     reaction_color_palette = read_json("data/reaction_color_palette.json")
     sentiment_color_palette = read_json("data/sentiment_color_palette.json")
@@ -62,6 +62,14 @@ def main():
     ###############################################
     # DATA FILTERING
     ###############################################
+    total_posts = df['uniq_id'].nunique()
+    total_channels = df['channel_id'].nunique()
+    sum_views = df['views'].sum()
+    sum_eng = df['engagements'].sum()
+
+    ###############################################
+    # DATA FILTERING
+    ###############################################
     if lang == "english":
         col_search = "translated_text"
     else :
@@ -87,6 +95,11 @@ def main():
     'replies': ('replies_count', 'sum'),
     'forwards': ('forwards', 'sum')
     }
+
+    df_perf_channels = df.groupby("channel").agg(**metrics).reset_index().sort_values(by="posts", ascending=False)
+    df_perf_channels['share_of_voice'] = (df_perf_channels["posts"]/total_posts)*100
+    df_perf_channels['share_of_engagements'] = (df_perf_channels["engagements"]/sum_eng)*100
+    df_perf_channels['share_of_views'] = (df_perf_channels["views"]/sum_views)*100
 
     df_trends_channels = df.copy()
     df_trends_channels.set_index('datetime', inplace=True)
@@ -154,12 +167,16 @@ def main():
 
     with col1:
         st.metric("Verbatims", format_number(df['uniq_id'].nunique()), label_visibility="visible")
+        st.write('{:.2%}'.format(df['uniq_id'].nunique()/total_posts))
     with col2:
         st.metric("Channels", format_number(df['channel_id'].nunique()), label_visibility="visible")
+        st.write('{:.2%}'.format(df['channel_id'].nunique()/total_channels))
     with col3:
         st.metric("Views", format_number(df['views'].sum()), label_visibility="visible")
+        st.write('{:.2%}'.format(df['views'].sum()/sum_views))
     with col4:
         st.metric("Engagements", format_number(df['engagements'].sum()), label_visibility="visible")
+        st.write('{:.2%}'.format(df['engagements'].sum()/sum_eng))
 
 
     ###############################################
@@ -176,6 +193,36 @@ def main():
         ))
     
     st.plotly_chart(fig_trend_post_channel, use_container_width=True, sharing="streamlit", theme="streamlit")
+
+
+    fig = create_scatter_plot(
+    df_perf_channels, 
+    "share_of_engagements", 
+    "share_of_views", 
+    "channel", 
+    channel_color_palette, 
+    "channel", 
+    "posts", 
+    "channel", 
+    title="Channels performance", 
+    x_axis_label="Share of engagements", 
+    y_axis_label="Share of views", 
+    width=1000, height=1000,  
+    opacity=0.8, 
+    plot_bgcolor="#FFFFFF", 
+    paper_bgcolor="#FFFFFF", 
+    line_width=0.5, 
+    line_color="white", 
+    template="plotly", 
+    xaxis_range="auto",
+    yaxis_range="auto",
+    yaxis_showgrid = True, 
+    xaxis_showgrid = True,
+    mode = "markers+text", 
+    textposition="bottom center"
+    )
+    st.plotly_chart(fig, use_container_width=True, sharing="streamlit", theme="streamlit")
+
 
     ###############################################
     # SURREACTION
@@ -242,7 +289,7 @@ def main():
     st.plotly_chart(fig_similitudes, use_container_width=True, sharing="streamlit", theme="streamlit")
 
     cols_to_display=["channel", "datetime", col_search, "views", "engagements"]
-    st.dataframe(df[cols_to_display].reset_index(drop=True).sort_values(by="engagements", ascending=False), hide_index=True, use_container_width =True)
+    st.dataframe(df[cols_to_display].reset_index(drop=True).sort_values(by="engagements", ascending=False), hide_index=True, use_container_width =True, height=800)
 
 
 if __name__ == "__main__":
