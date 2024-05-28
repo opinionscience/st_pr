@@ -63,8 +63,6 @@ def main():
     # min_edge_size = 1
     # max_edge_size = 5
 
-
-
     ###############################################
     # DATA FILTERING
     ###############################################
@@ -79,8 +77,6 @@ def main():
 
     df_twitter = df[df['plateforme']=="Twitter"].reset_index(drop=True)
     df_telegram = df[df['plateforme']=="Telegram"].reset_index(drop=True)
-
-
 
     boolean_query_telegram = Query(txt_query_telegram, ignore_case=ignore_case, ignore_accent=ignore_accent, match_word=match_word)
     df_telegram = df_telegram[df_telegram[col_search].apply(boolean_query_telegram)]
